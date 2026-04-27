@@ -1,0 +1,79 @@
+# generated: 2026-04-27T10:31:12Z
+# last_updated: 2026-04-27T10:31:12Z
+# project: bmad_habit_tracker
+# project_key: NOKEY
+# tracking_system: file-system
+# story_location: /Users/bogi/My Projects/Nearform/bmad_habit_tracker/_bmad-output/implementation-artifacts
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog -> in-progress: Automatically when first story is created (via create-story)
+#   - in-progress -> done: Manually when all stories reach 'done' status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in stories folder
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review (via Dev's code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when first story is created
+# - Stories can be worked in parallel if team capacity allows
+# - Developer typically creates next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+
+generated: "2026-04-27T10:31:12Z"
+last_updated: "2026-04-27T20:05:00Z"
+project: "bmad_habit_tracker"
+project_key: "NOKEY"
+tracking_system: "file-system"
+story_location: "/Users/bogi/My Projects/Nearform/bmad_habit_tracker/_bmad-output/implementation-artifacts"
+
+development_status:
+  epic-1: done
+  1-1-initialize-project-from-approved-starter-template: done
+  1-2-first-launch-family-setup-flow: done
+  1-3-child-profile-creation-and-profile-picker: done
+  1-4-parent-protected-settings-and-profile-management: done
+  1-5-weekly-parent-summary-and-guidance-prompts: done
+  epic-1-retrospective: done
+  epic-2: backlog
+  2-1-daily-check-in-capture-offline-first: backlog
+  2-2-deterministic-streak-and-grace-day-engine: backlog
+  2-3-streak-transparency-and-day-level-history: backlog
+  2-4-reminder-scheduling-and-failure-tolerance: backlog
+  epic-2-retrospective: optional
+  epic-3: backlog
+  3-1-reward-progress-and-milestone-unlock: backlog
+  3-2-reinforcement-messaging-and-mascot-evolution: backlog
+  3-3-age-banded-daily-learning-card-delivery: backlog
+  epic-3-retrospective: optional
+  epic-4: backlog
+  4-1-family-calendar-entry-and-monthly-view-foundation: backlog
+  4-2-shared-events-and-child-schedule-items: backlog
+  4-3-habits-chores-tracker-panel-in-calendar-context: backlog
+  4-4-upcoming-notes-panel-and-calendar-persistence: backlog
+  epic-4-retrospective: optional
+  epic-5: backlog
+  5-1-local-data-minimization-and-schema-guardrails: backlog
+  5-2-protected-storage-and-parent-access-controls: backlog
+  5-3-streak-dispute-reporting-and-diagnostic-bundle: backlog
+  5-4-phase-2-compliance-extension-points: backlog
+  epic-5-retrospective: optional
+  epic-6: backlog
+  6-1-development-and-pilot-channel-build-setup: backlog
+  6-2-reproducible-build-and-smoke-test-gate: backlog
+  6-3-phase-2-store-submission-readiness-scaffold: backlog
+  epic-6-retrospective: optional
