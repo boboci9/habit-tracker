@@ -34,7 +34,7 @@ export function useFamilySetup() {
           return;
         }
         setComplete(completed);
-        setDraft(savedDraft);
+        setDraft(savedDraft ?? DEFAULT_DRAFT);
       } catch {
         if (mounted) {
           setError('Unable to load setup state.');
@@ -52,6 +52,8 @@ export function useFamilySetup() {
       mounted = false;
     };
   }, []);
+
+  const safeDraft = draft ?? DEFAULT_DRAFT;
 
   useEffect(() => {
     if (loading || complete) {
@@ -71,9 +73,9 @@ export function useFamilySetup() {
   }, [draft, loading, complete]);
 
   const validation = useMemo(() => {
-    const familyNameOk = draft.familyName.trim().length > 0;
-    const rewardOk = draft.initialRewardLabel.trim().length > 0;
-    const childCountOk = Number.isFinite(draft.childCount) && draft.childCount >= 2;
+    const familyNameOk = safeDraft.familyName.trim().length > 0;
+    const rewardOk = safeDraft.initialRewardLabel.trim().length > 0;
+    const childCountOk = Number.isFinite(safeDraft.childCount) && safeDraft.childCount >= 2;
 
     return {
       isValid: familyNameOk && rewardOk && childCountOk,
@@ -81,7 +83,7 @@ export function useFamilySetup() {
       rewardOk,
       childCountOk,
     };
-  }, [draft]);
+  }, [safeDraft]);
 
   const completeSetup = useCallback(async () => {
     if (isSubmitting) {
@@ -97,9 +99,9 @@ export function useFamilySetup() {
     setIsSubmitting(true);
     try {
       const normalizedDraft: SetupDraft = {
-        familyName: draft.familyName.trim(),
-        childCount: draft.childCount,
-        initialRewardLabel: draft.initialRewardLabel.trim(),
+        familyName: safeDraft.familyName.trim(),
+        childCount: safeDraft.childCount,
+        initialRewardLabel: safeDraft.initialRewardLabel.trim(),
       };
       await saveSetupDraft(normalizedDraft);
       await markSetupComplete();
@@ -109,7 +111,7 @@ export function useFamilySetup() {
     } finally {
       setIsSubmitting(false);
     }
-  }, [draft, isSubmitting, validation.isValid]);
+  }, [safeDraft, isSubmitting, validation.isValid]);
 
   const resetSetup = useCallback(async () => {
     if (isSubmitting) {

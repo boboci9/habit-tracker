@@ -83,9 +83,9 @@ FR25: Parent users can configure daily reminder timing for a child device.
 FR26: Parent users can view a weekly consistency summary that includes, per child, weekly completion percentage, current streak status, and missed-day count.
 FR27: Parent users can access guidance prompts for effort-first reinforcement language.
 FR28: Parent users can manage key Phase 1 settings without requiring cloud connectivity.
-FR29: The system can schedule one recurring daily reminder notification.
+FR29: The system can schedule one recurring daily reminder notification per child profile.
 FR30: Child users can continue habit check-ins even if notifications are disabled or unavailable.
-FR31: Parent users can update reminder timing after initial setup.
+FR31: Parent users can update reminder timing and enable/disable reminders per child profile after initial setup.
 FR32: Child and parent users can view day-level habit history records.
 FR33: Child and parent users can view transparent streak rule explanations.
 FR34: Parent users can initiate a streak issue report when they believe progress is incorrect.

@@ -1,10 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import {
-  DailyCheckinInput,
   WeeklySummaryRow,
   listWeeklyParentSummary,
-  recordDailyCheckin,
 } from '../infrastructure/weekly-summary-storage';
 
 const EFFORT_FIRST_PROMPTS = [
@@ -31,7 +29,6 @@ export function useWeeklyParentSummary() {
   const [rows, setRows] = useState<WeeklySummaryRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [saving, setSaving] = useState(false);
 
   const loadSummary = useCallback(async () => {
     const data = await listWeeklyParentSummary(weekStart);
@@ -63,37 +60,6 @@ export function useWeeklyParentSummary() {
     };
   }, [loadSummary]);
 
-  const recordTodayForProfile = useCallback(
-    async (profileId: string) => {
-      if (saving) {
-        return;
-      }
-
-      setSaving(true);
-      setError('');
-      try {
-        const now = new Date();
-        const year = now.getFullYear();
-        const month = `${now.getMonth() + 1}`.padStart(2, '0');
-        const day = `${now.getDate()}`.padStart(2, '0');
-        const checkinDate = `${year}-${month}-${day}`;
-
-        const input: DailyCheckinInput = {
-          profileId,
-          checkinDate,
-        };
-
-        await recordDailyCheckin(input);
-        await loadSummary();
-      } catch (e) {
-        setError(e instanceof Error ? e.message : 'Unable to save weekly summary.');
-      } finally {
-        setSaving(false);
-      }
-    },
-    [loadSummary, saving]
-  );
-
   const prompts = useMemo(() => EFFORT_FIRST_PROMPTS, []);
 
   return {
@@ -101,8 +67,6 @@ export function useWeeklyParentSummary() {
     rows,
     loading,
     error,
-    saving,
-    recordTodayForProfile,
     prompts,
   };
 }

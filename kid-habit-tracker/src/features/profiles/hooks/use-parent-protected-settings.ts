@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { ChildProfile, ChildProfileInput, ChildProfileSettingsInput } from '../infrastructure/profile-storage';
+import { scheduleDailyReminderForProfile } from '../infrastructure/reminder-notifications';
 import { verifyParentPin } from '../infrastructure/setup-storage';
 
 type UseParentProtectedSettingsOptions = {
@@ -24,6 +25,13 @@ const DEFAULT_SETTINGS: ChildProfileSettingsInput = {
   rewardTargetDays: 7,
   reminderTime: '18:00',
 };
+
+function isValidReminderInput(reminderTime: string): boolean {
+  const trimmed = reminderTime.trim();
+  return /^([01]\d|2[0-3]):([0-5]\d)$/.test(trimmed) || trimmed.toLowerCase() === 'off';
+}
+
+type AuthorizationContext = 'parent' | 'child';
 
 export function useParentProtectedSettings({
   selectedProfile,
@@ -54,20 +62,36 @@ export function useParentProtectedSettings({
     });
   }, [selectedProfile]);
 
+  const authorizationContext: AuthorizationContext = verified ? 'parent' : 'child';
+
+  const denyIfChildMode = useCallback((): boolean => {
+    if (authorizationContext === 'parent') {
+      return false;
+    }
+
+    setError('Parent mode is required for this action.');
+    return true;
+  }, [authorizationContext]);
+
   const verify = useCallback(async () => {
     if (saving) {
       return;
     }
 
     setError('');
-    const ok = await verifyParentPin(pin);
-    if (!ok) {
-      setVerified(false);
-      setError('Parent verification failed.');
-      return;
-    }
+    try {
+      const ok = await verifyParentPin(pin, 'parent');
+      if (!ok) {
+        setVerified(false);
+        setError('Parent verification failed.');
+        return;
+      }
 
-    setVerified(true);
+      setVerified(true);
+    } catch (e) {
+      setVerified(false);
+      setError(e instanceof Error ? e.message : 'Unable to verify parent credentials.');
+    }
   }, [pin, saving]);
 
   const lock = useCallback(() => {
@@ -76,14 +100,15 @@ export function useParentProtectedSettings({
   }, []);
 
   const saveSelected = useCallback(async () => {
+    if (denyIfChildMode()) {
+      return;
+    }
+
     if (!selectedProfile) {
       setError('Select a child profile first.');
       return;
     }
-    if (!verified) {
-      setError('Parent verification is required.');
-      return;
-    }
+
     if (saving) {
       return;
     }
@@ -92,22 +117,33 @@ export function useParentProtectedSettings({
     setError('');
     try {
       await saveChildProfile(selectedProfile.id, profileDraft, settingsDraft);
+
+      const reminderResult = await scheduleDailyReminderForProfile(
+        selectedProfile.id,
+        profileDraft.name.trim().length > 0 ? profileDraft.name : selectedProfile.name,
+        settingsDraft.reminderTime
+      );
+
+      if (!reminderResult.ok) {
+        setError(reminderResult.error);
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Unable to save profile settings.');
     } finally {
       setSaving(false);
     }
-  }, [profileDraft, saveChildProfile, saving, selectedProfile, settingsDraft, verified]);
+  }, [denyIfChildMode, profileDraft, saveChildProfile, saving, selectedProfile, settingsDraft]);
 
   const removeSelected = useCallback(async () => {
+    if (denyIfChildMode()) {
+      return;
+    }
+
     if (!selectedProfile) {
       setError('Select a child profile first.');
       return;
     }
-    if (!verified) {
-      setError('Parent verification is required.');
-      return;
-    }
+
     if (saving) {
       return;
     }
@@ -121,7 +157,7 @@ export function useParentProtectedSettings({
     } finally {
       setSaving(false);
     }
-  }, [removeChildProfile, saving, selectedProfile, verified]);
+  }, [denyIfChildMode, removeChildProfile, saving, selectedProfile]);
 
   const formValid = useMemo(() => {
     const nameOk = profileDraft.name.trim().length > 0;
@@ -130,7 +166,7 @@ export function useParentProtectedSettings({
       Number.isFinite(settingsDraft.rewardTargetDays) &&
       settingsDraft.rewardTargetDays >= 1 &&
       settingsDraft.rewardTargetDays <= 60;
-    const reminderOk = /^([01]\d|2[0-3]):([0-5]\d)$/.test(settingsDraft.reminderTime.trim());
+    const reminderOk = isValidReminderInput(settingsDraft.reminderTime);
 
     return {
       isValid: nameOk && ageOk && rewardOk && reminderOk,
@@ -144,6 +180,7 @@ export function useParentProtectedSettings({
   return {
     pin,
     setPin,
+    authorizationContext,
     verified,
     verify,
     lock,

@@ -36,6 +36,12 @@ overallStatus: 'Warning'
 
 [Findings will be appended as validation progresses]
 
+### 2026-04-28 Requirement Alignment Addendum
+
+- FR29 wording clarified to: one recurring daily reminder notification per child profile.
+- FR31 wording clarified to: reminder timing can be updated and reminders can be enabled/disabled per child profile.
+- This is a requirement-clarity update; validation scores for FR29-FR31 remain unchanged.
+
 ## Format Detection
 
 **PRD Structure:**

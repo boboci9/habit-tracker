@@ -1,9 +1,11 @@
 import * as SQLite from 'expo-sqlite';
+import * as SecureStore from 'expo-secure-store';
 
 const DB_NAME = 'family-setup.db';
 const KEY_DRAFT = 'setup_draft';
 const KEY_COMPLETE = 'setup_complete';
-const KEY_PARENT_PIN = 'parent_pin';
+const LEGACY_KEY_PARENT_PIN = 'parent_pin';
+const SECURE_KEY_PARENT_PIN = 'parent_pin_secure';
 const SCHEMA_VERSION = 1;
 const DEFAULT_PARENT_PIN = '1234';
 
@@ -22,6 +24,58 @@ const DEFAULT_DRAFT: SetupDraft = {
 let dbPromise: Promise<SQLite.SQLiteDatabase> | null = null;
 let initialized = false;
 
+type AuthorizationContext = 'parent' | 'child';
+
+function mapSecureStorageError(): Error {
+  return new Error('Unable to verify parent credentials. Please try again.');
+}
+
+async function readParentPinFromSecureStorage(): Promise<string | null> {
+  try {
+    const available = await SecureStore.isAvailableAsync();
+    if (!available) {
+      throw mapSecureStorageError();
+    }
+
+    return await SecureStore.getItemAsync(SECURE_KEY_PARENT_PIN);
+  } catch {
+    throw mapSecureStorageError();
+  }
+}
+
+async function writeParentPinToSecureStorage(pin: string): Promise<void> {
+  try {
+    const available = await SecureStore.isAvailableAsync();
+    if (!available) {
+      throw mapSecureStorageError();
+    }
+
+    await SecureStore.setItemAsync(SECURE_KEY_PARENT_PIN, pin);
+  } catch {
+    throw mapSecureStorageError();
+  }
+}
+
+async function migrateLegacyParentPinToSecureStorage(db: SQLite.SQLiteDatabase): Promise<void> {
+  const legacyRow = await db.getFirstAsync<{ value: string }>(
+    'SELECT value FROM setup_state WHERE key = ? LIMIT 1;',
+    [LEGACY_KEY_PARENT_PIN]
+  );
+  const legacyPin = legacyRow?.value?.trim();
+
+  if (!legacyPin) {
+    return;
+  }
+
+  const securePin = await readParentPinFromSecureStorage();
+  if (!securePin) {
+    await writeParentPinToSecureStorage(legacyPin);
+  }
+
+  // Only delete legacy plain-text parent PIN after successful secure-store migration.
+  await db.runAsync('DELETE FROM setup_state WHERE key = ?;', [LEGACY_KEY_PARENT_PIN]);
+}
+
 async function getDb(): Promise<SQLite.SQLiteDatabase> {
   if (!dbPromise) {
     dbPromise = SQLite.openDatabaseAsync(DB_NAME);
@@ -37,6 +91,8 @@ async function getDb(): Promise<SQLite.SQLiteDatabase> {
         updated_at INTEGER NOT NULL
       );
     `);
+
+    await migrateLegacyParentPinToSecureStorage(db);
 
     const versionRow = await db.getFirstAsync<{ user_version: number }>('PRAGMA user_version;');
     const currentVersion = versionRow?.user_version ?? 0;
@@ -117,12 +173,19 @@ export async function clearSetupDraft(): Promise<void> {
   await writeState(KEY_DRAFT, JSON.stringify(DEFAULT_DRAFT));
 }
 
-export async function verifyParentPin(pin: string): Promise<boolean> {
-  const raw = await readState(KEY_PARENT_PIN);
+export async function verifyParentPin(
+  pin: string,
+  authorizationContext: AuthorizationContext = 'parent'
+): Promise<boolean> {
+  if (authorizationContext !== 'parent') {
+    return false;
+  }
+
+  const raw = await readParentPinFromSecureStorage();
   const expected = raw ?? DEFAULT_PARENT_PIN;
 
   if (!raw) {
-    await writeState(KEY_PARENT_PIN, expected);
+    await writeParentPinToSecureStorage(expected);
   }
 
   return pin.trim() === expected;

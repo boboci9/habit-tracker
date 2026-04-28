@@ -6,6 +6,7 @@ const MIN_PROFILES = 2;
 const MAX_PROFILES = 6;
 const DEFAULT_REWARD_TARGET_DAYS = 7;
 const DEFAULT_REMINDER_TIME = '18:00';
+const DISABLED_REMINDER_TIME = 'OFF';
 
 export type ChildProfile = {
   id: string;
@@ -89,9 +90,16 @@ function validateSettingsInput(input: ChildProfileSettingsInput): void {
     throw new Error('Reward target must be between 1 and 60 days.');
   }
 
-  if (!/^([01]\d|2[0-3]):([0-5]\d)$/.test(input.reminderTime.trim())) {
-    throw new Error('Reminder time must use HH:MM format.');
+  const reminder = input.reminderTime.trim();
+  const reminderIsDisabled = reminder.toLowerCase() === DISABLED_REMINDER_TIME.toLowerCase();
+  if (!/^([01]\d|2[0-3]):([0-5]\d)$/.test(reminder) && !reminderIsDisabled) {
+    throw new Error('Reminder time must use HH:MM format or OFF.');
   }
+}
+
+function normalizeReminderTime(reminderTime: string): string {
+  const trimmed = reminderTime.trim();
+  return trimmed.toLowerCase() === DISABLED_REMINDER_TIME.toLowerCase() ? DISABLED_REMINDER_TIME : trimmed;
 }
 
 function validateProfileInput(input: ChildProfileInput): void {
@@ -230,6 +238,7 @@ export async function updateChildProfileSettings(
   input: ChildProfileSettingsInput
 ): Promise<void> {
   validateSettingsInput(input);
+  const normalizedReminderTime = normalizeReminderTime(input.reminderTime);
 
   const db = await getDb();
   const existing = await db.getFirstAsync<{ id: string }>(
@@ -246,7 +255,7 @@ export async function updateChildProfileSettings(
       SET reward_target_days = ?, reminder_time = ?, updated_at = ?
       WHERE id = ?;
     `,
-    [Math.trunc(input.rewardTargetDays), input.reminderTime.trim(), Date.now(), profileId]
+    [Math.trunc(input.rewardTargetDays), normalizedReminderTime, Date.now(), profileId]
   );
 }
 
@@ -257,6 +266,7 @@ export async function updateChildProfileWithSettings(
 ): Promise<void> {
   validateProfileInput(profileInput);
   validateSettingsInput(settingsInput);
+  const normalizedReminderTime = normalizeReminderTime(settingsInput.reminderTime);
 
   const db = await getDb();
   const existing = await db.getFirstAsync<{ id: string }>(
@@ -294,7 +304,7 @@ export async function updateChildProfileWithSettings(
       profileInput.avatar.trim(),
       profileInput.color.trim(),
       Math.trunc(settingsInput.rewardTargetDays),
-      settingsInput.reminderTime.trim(),
+      normalizedReminderTime,
       Date.now(),
       profileId,
     ]

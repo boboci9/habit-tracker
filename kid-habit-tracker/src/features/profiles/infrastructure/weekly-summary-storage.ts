@@ -1,12 +1,8 @@
 import * as SQLite from 'expo-sqlite';
 
-const DB_NAME = 'family-setup.db';
-const SCHEMA_VERSION = 1;
+import { initializeDailyCheckinStorage } from '../../checkin/infrastructure/daily-checkin-storage';
 
-export type DailyCheckinInput = {
-  profileId: string;
-  checkinDate: string;
-};
+const DB_NAME = 'family-setup.db';
 
 export type WeeklySummaryRow = {
   profileId: string;
@@ -29,36 +25,13 @@ async function getDb(): Promise<SQLite.SQLiteDatabase> {
   const db = await dbPromise;
 
   if (!initialized) {
+    await initializeDailyCheckinStorage();
     await db.execAsync('PRAGMA journal_mode = WAL;');
-    await db.execAsync(`
-      CREATE TABLE IF NOT EXISTS daily_checkins (
-        profile_id TEXT NOT NULL,
-        checkin_date TEXT NOT NULL,
-        completed INTEGER NOT NULL,
-        created_at INTEGER NOT NULL,
-        PRIMARY KEY (profile_id, checkin_date)
-      );
-    `);
-
-    const versionRow = await db.getFirstAsync<{ user_version: number }>('PRAGMA user_version;');
-    const currentVersion = versionRow?.user_version ?? 0;
-    if (currentVersion < SCHEMA_VERSION) {
-      await db.execAsync(`PRAGMA user_version = ${SCHEMA_VERSION};`);
-    }
 
     initialized = true;
   }
 
   return db;
-}
-
-function validateDailyCheckinInput(input: DailyCheckinInput): void {
-  if (input.profileId.trim().length === 0) {
-    throw new Error('Profile id is required.');
-  }
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(input.checkinDate.trim())) {
-    throw new Error('Check-in date must use YYYY-MM-DD format.');
-  }
 }
 
 function getWeekEndDate(weekStart: string): string {
@@ -69,32 +42,6 @@ function getWeekEndDate(weekStart: string): string {
   const endMonth = `${start.getMonth() + 1}`.padStart(2, '0');
   const endDay = `${start.getDate()}`.padStart(2, '0');
   return `${endYear}-${endMonth}-${endDay}`;
-}
-
-export async function recordDailyCheckin(input: DailyCheckinInput): Promise<void> {
-  validateDailyCheckinInput(input);
-
-  const db = await getDb();
-
-  await db.runAsync(
-    `
-      INSERT INTO daily_checkins (
-        profile_id,
-        checkin_date,
-        completed,
-        created_at
-      )
-      VALUES (?, ?, 1, ?)
-      ON CONFLICT(profile_id, checkin_date) DO UPDATE SET
-        completed = excluded.completed,
-        created_at = excluded.created_at;
-    `,
-    [
-      input.profileId.trim(),
-      input.checkinDate.trim(),
-      Date.now(),
-    ]
-  );
 }
 
 export async function listWeeklyParentSummary(weekStart: string): Promise<WeeklySummaryRow[]> {

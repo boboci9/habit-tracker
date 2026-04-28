@@ -68,9 +68,9 @@ FR58: The Family Calendar can include a Habits/Chores tracker section below the 
 FR59: The Family Calendar can include an Upcoming/Notes panel where a parent can add 3-5 short free-text notes or reminders visible on the family view.
 FR60: The Family Calendar view can be fully navigable without selecting an individual child profile and serves as a family-level entry point.
 FR46: The system can surface one static learning card per day from a pre-bundled content library, where each card is tagged to one of three age bands (8-9, 10-11, 12) and rendered only for the child's configured band.
-FR29: The system can schedule one recurring daily reminder notification.
+FR29: The system can schedule one recurring daily reminder notification per child profile.
 FR30: Child users can continue habit check-ins even if notifications are disabled or unavailable.
-FR31: Parent users can update reminder timing after initial setup.
+FR31: Parent users can update reminder timing and enable/disable reminders per child profile after initial setup.
 FR32: Child and parent users can view day-level habit history records.
 FR33: Child and parent users can view transparent streak rule explanations.
 FR34: Parent users can initiate a streak issue report when they believe progress is incorrect.
@@ -160,9 +160,9 @@ FR25: Epic 1 - reminder timing configuration
 FR26: Epic 1 - weekly consistency summary
 FR27: Epic 1 - parent guidance prompts
 FR28: Epic 1 - local settings management
-FR29: Epic 2 - recurring daily reminder scheduling
+FR29: Epic 2 - recurring daily reminder scheduling per child profile
 FR30: Epic 2 - check-ins still work if notifications off
-FR31: Epic 2 - reminder time updates post-setup
+FR31: Epic 2 - per-child reminder time updates and enable/disable post-setup
 FR32: Epic 5 - day-level history visibility
 FR33: Epic 5 - streak rule explanation visibility
 FR34: Epic 5 - streak issue reporting
@@ -392,7 +392,7 @@ So that I can understand why streak state changed.
 ### Story 2.4: Reminder Scheduling and Failure Tolerance
 
 As a parent,
-I want one recurring daily reminder schedule,
+I want one recurring daily reminder schedule per child profile,
 So that children are prompted consistently without complex setup.
 
 **Implements:** FR29, FR30, FR31
@@ -401,8 +401,8 @@ So that children are prompted consistently without complex setup.
 
 **Given** reminder time is configured
 **When** schedule is saved
-**Then** one recurring reminder is registered on-device
-**And** reminder settings can be updated later.
+**Then** one recurring reminder for that child is registered on-device
+**And** reminder settings can be updated or disabled later per child.
 
 **Given** notifications are denied or unavailable
 **When** the child opens the app

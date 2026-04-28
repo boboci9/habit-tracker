@@ -368,9 +368,9 @@ The product will be implemented as a cross-platform mobile application using Rea
   - Core streak and reward state must be computed locally and persist across app restarts.
   - Local persistence must be durable and recoverable for child-facing trust.
 - Notification architecture:
-  - MVP includes one daily reminder notification at a parent-configured device setup time.
+  - MVP includes one daily reminder notification per child profile at a parent-configured time.
   - Use Expo Notifications with platform-safe defaults.
-  - Notification UX must remain simple: one reminder schedule, no complex campaign logic.
+  - Notification UX must remain simple: one schedule per child, no complex campaign logic.
 - Device capability model:
   - No camera, microphone, geolocation, or biometric dependencies in MVP.
   - Primary interaction mode is touch/tap.
@@ -409,7 +409,7 @@ The product will be implemented as a cross-platform mobile application using Rea
 
 - Include MVP daily reminder:
   - Message example: "Time to check your habits!"
-  - Configurable once at setup, then editable in settings.
+  - Configurable per child at setup, then editable or disableable per child in settings.
 - No advanced segmentation or multi-reminder orchestration in MVP.
 - Reminder failures must not block manual check-in completion.
 
@@ -466,7 +466,7 @@ Must-Have Capabilities:
 3. Deterministic streak + 1-2 grace-day logic
 4. 7-day reward unlock animation with parent-defined reward
 5. Goal calendar progression visualization
-6. One configurable daily reminder notification
+6. One configurable daily reminder notification per child profile (disableable per child)
 7. Child-safe, low-reading UI with clear feedback states
 8. Transparent streak history/rule explanation
 9. No accounts, no cloud sync, no ad-tech, minimal permissions
@@ -591,9 +591,9 @@ If a feature does not directly improve daily completion, streak trust, or identi
 
 ### Notifications and Reminders
 
-- FR29: The system can schedule one recurring daily reminder notification.
+- FR29: The system can schedule one recurring daily reminder notification per child profile.
 - FR30: Child users can continue habit check-ins even if notifications are disabled or unavailable.
-- FR31: Parent users can update reminder timing after initial setup.
+- FR31: Parent users can update reminder timing and enable/disable reminders per child profile after initial setup.
 
 ### History, Transparency, and Supportability
 

@@ -1,0 +1,8 @@
+{
+  "channel": "pilot",
+  "platform": "android",
+  "buildProfile": "pilot-android",
+  "appVersion": "1.0.0",
+  "sourceCommit": "c292e5c",
+  "generatedAt": "2026-04-28T15:41:27.058Z"
+}

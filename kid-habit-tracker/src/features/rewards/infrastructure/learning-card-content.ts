@@ -1,0 +1,77 @@
+import { LearningCardContent } from '../domain/learning-card';
+
+// Pre-bundled local learning card content; governance filtering happens at runtime.
+export const PRE_BUNDLED_LEARNING_CARDS: LearningCardContent[] = [
+  {
+    id: 'lc-8-9-01',
+    title: 'Volcano Clue',
+    body: 'Volcanoes erupt when pressure builds up beneath the Earth\'s crust.',
+    ageBand: '8-9',
+    approved: true,
+    resolved: true,
+  },
+  {
+    id: 'lc-8-9-02',
+    title: 'Plant Secret',
+    body: 'Plants make food from sunlight using a process called photosynthesis.',
+    ageBand: '8-9',
+    approved: true,
+    resolved: true,
+  },
+  {
+    id: 'lc-10-11-01',
+    title: 'Sound Waves',
+    body: 'Sound travels in waves and needs a material like air or water to move.',
+    ageBand: '10-11',
+    approved: true,
+    resolved: true,
+  },
+  {
+    id: 'lc-10-11-02',
+    title: 'Space Distance',
+    body: 'Light from the Sun takes about 8 minutes to reach Earth.',
+    ageBand: '10-11',
+    approved: true,
+    resolved: true,
+  },
+  {
+    id: 'lc-12-01',
+    title: 'Neuron Network',
+    body: 'Neurons send electrical and chemical signals to help your body think and move.',
+    ageBand: '12',
+    approved: true,
+    resolved: true,
+  },
+  {
+    id: 'lc-12-02',
+    title: 'Ocean Current',
+    body: 'Ocean currents transfer heat around Earth and influence climate patterns.',
+    ageBand: '12',
+    approved: true,
+    resolved: true,
+  },
+  {
+    id: 'lc-10-11-unapproved',
+    title: 'Draft Card',
+    body: 'This should not be shown because it is not approved.',
+    ageBand: '10-11',
+    approved: false,
+    resolved: true,
+  },
+  {
+    id: 'lc-8-9-unresolved',
+    title: 'Pending Review',
+    body: 'This should not be shown because governance is unresolved.',
+    ageBand: '8-9',
+    approved: true,
+    resolved: false,
+  },
+  {
+    id: 'lc-12-invalid-body',
+    title: 'Invalid Entry',
+    body: ' ',
+    ageBand: '12',
+    approved: true,
+    resolved: true,
+  },
+];
